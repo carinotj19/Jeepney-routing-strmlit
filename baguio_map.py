@@ -58,6 +58,7 @@ def get_coordinates(selected_route):
         return None 
 
     coordinates = data['Coordinates'].apply(ast.literal_eval)
+    train_model(route_data)
     return generate_route_data(coordinates) 
 
 # Function to draw and update the map 
@@ -71,14 +72,12 @@ def draw_map(route_coordinates):
 
 # Initial coordinates load
 route_data = get_coordinates(selected_route)
-
-st.write(route_data.head())
 coordinates = route_data["Coordinates"]
-st.write(coordinates.head())
 
 for index, row in route_data.iterrows():  
     q_table.loc[len(q_table)] = [row['Coordinates'], 1]
     
+st.write(q_table)
 # Simplified Q-Learning Training Loop
 def train_model(route_data):
     alpha = 0.2  # Learning rate
