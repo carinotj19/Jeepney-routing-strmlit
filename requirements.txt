@@ -4,3 +4,8 @@ folium
 pandas
 gym
 matplotlib
+stable-baselines3
+torch
+torchvision
+torchaudio
+shimmy>=0.2.1
