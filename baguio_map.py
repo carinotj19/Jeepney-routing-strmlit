@@ -31,7 +31,7 @@ def get_data(selected_route):
 # Function to preprocess the data and predict top 5 coordinates
 def get_top_coordinates(data):
     # Preprocess the data (assuming columns are named correctly)
-    features = data[['Traffic', 'Passenger Frequency', 'Landmark Proximity']].values
+    features = data[['Traffic', 'Passenger Frequency', 'Landmark Proximity']].values.astype(np.float32)
     # Predict rewards using the DQN model
     rewards = model.predict(features)
     # Sort coordinates based on predicted rewards and select top 5
