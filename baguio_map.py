@@ -20,9 +20,9 @@ selected_route = st.sidebar.selectbox("Choose a route:", route_options)
 # Function to get coordinates and other data based on route selection
 def get_data(selected_route):
     if selected_route == "Route 2: La Trinidad Route":
-        data = pd.read_csv('LatriCoords.csv')
+        data = pd.read_csv('LatriComplete.csv')
     elif selected_route == "Route 1: Trancoville Route":
-        data = pd.read_csv('TrancoCoords.csv')
+        data = pd.read_csv('TrancoComplete.csv')
     else:
         return None  # Handle invalid route case
 
