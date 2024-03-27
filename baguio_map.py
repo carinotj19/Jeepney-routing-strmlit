@@ -33,7 +33,7 @@ def get_top_coordinates(data):
     # Preprocess the data (assuming columns are named correctly)
     features = data[['Traffic', 'Passenger Frequency', 'Landmark Proximity']].values.astype(np.float32)
     # Predict rewards using the DQN model
-    rewards = model.predict(features)
+    rewards, _ = model.predict(features, deterministic=True)
     # Sort coordinates based on predicted rewards and select top 5
     top_indices = np.argsort(rewards)[-5:][::-1]  # Top 5 indices with highest rewards
     top_coordinates = data.iloc[top_indices]['Coordinates'].apply(ast.literal_eval).tolist()
