@@ -4,3 +4,4 @@ pandas
 tensorflow
 pandas
 numpy
+streamlit-folium
