@@ -1,52 +1,69 @@
 import streamlit as st
-from streamlit_folium import st_folium
-import folium
 import pandas as pd
-import ast
+import numpy as np
+import folium
+from streamlit_folium import folium_static
+import tensorflow as tf
 
-# App Title
-st.title("Baguio City Route Explorer")
+# Function to load the CSV file
+@st.cache_data
+def load_data(file_name):
+    data = pd.read_csv(file_name)
+    data[['Latitude', 'Longitude']] = data['Coordinates'].str.strip('[]').str.split(',', expand=True).astype(float)
+    return data
 
-# Right Sidebar for Route Selection
-st.sidebar.header("Route Selection")
-route_options = ["Route 1: Trancoville Route", "Route 2: La Trinidad Route"] 
-selected_route = st.sidebar.selectbox("Choose a route:", route_options) 
+# Function to load and recompile the DQN model
+@st.cache_resource
+def load_dqn_model():
+    custom_objects = {'mse': tf.keras.losses.MeanSquaredError()}
+    model = tf.keras.models.load_model('dqn_model.h5', custom_objects=custom_objects)
+    # Recompile the model to ensure it is set up correctly
+    model.compile(optimizer='adam', loss='mse', metrics=['mse'])
+    return model
 
-# Function to get coordinates based on route selection
-def get_coordinates(selected_route):
-    if selected_route == "Route 2: La Trinidad Route":
-        data = pd.read_csv('LatriCoords.csv')
-    elif selected_route == "Route 1: Trancoville Route":
-        data = pd.read_csv('TrancoCoords.csv') 
-    else:
-        return None  # Handle invalid route case
+# Function to create a map with Folium
+def create_map(data, model):
+    m = folium.Map(location=[16.4023, 120.596], zoom_start=13)  # Baguio city coordinates
+    route_coordinates = []
 
-    return data['Coordinates'].apply(ast.literal_eval)
+    # Prepare the batch for predictions
+    states = data[['Traffic', 'Passenger Frequency', 'Landmark Proximity']].values.astype(np.float32)
+    scores = model.predict(states)
 
-# Function to draw and update the map 
-def draw_map(route_coordinates):
-    # Draw new line 
-    if route_coordinates is not None:
-        folium.PolyLine(route_coordinates, color="cadetblue", weight=5).add_to(map_baguio)
+    for index, row in data.iterrows():
+        score = scores[index][0]
+        color = 'green' if score > 0.8 else 'yellow' if score > 0.6 else 'orange' if score > 0.4 else 'red'
+        route_coordinates.append([row['Latitude'], row['Longitude']])
+        folium.CircleMarker(
+            location=[row['Latitude'], row['Longitude']],
+            radius=5,
+            color=color,
+            popup=f"Traffic: {row['Traffic']}, Passenger Frequency: {row['Passenger Frequency']}, Landmark Proximity: {row['Landmark Proximity']}",
+            fill=True
+        ).add_to(m)
+    
+    # Draw route line
+    if route_coordinates:
+        folium.PolyLine(route_coordinates, color="cadetblue", weight=5).add_to(m)
+    
+    return m
 
-    # Render map using st_folium (updates Folium object within Streamlit)
-    st_folium(map_baguio, width=700, height=450) 
+# Streamlit app layout
+st.title('Thesis System Map')
 
-# Initial coordinates load
-coordinates = get_coordinates(selected_route)
+# Dropdown menu for selecting a file
+file_options = ['LatriComplete.csv', 'TrancoComplete.csv']
+selected_file = st.selectbox('Select a Route File', [None] + file_options)
 
-# Center map around Baguio City
-baguio_lat = 16.4143
-baguio_lon = 120.5988
-map_zoom = 14.56
+# Initialize the DQN model
+model = load_dqn_model()
 
-# Create initial map object
-map_baguio = folium.Map(location=[baguio_lat, baguio_lon], zoom_start=map_zoom)
-
-# Initial draw
-draw_map(coordinates) 
-
-# Streamlit re-run magic - Code below this runs whenever 'selected_route' changes
-if selected_route:  # Ensure initial value isn't None
-    new_coordinates = get_coordinates(selected_route)
-    draw_map(new_coordinates)
+# Display map
+if selected_file:
+    data = load_data(selected_file)
+    map_ = create_map(data, model)
+    folium_static(map_, width=700, height=450)
+else:
+    # Display default Baguio city map
+    map_ = folium.Map(location=[16.4023, 120.596], zoom_start=13)
+    folium_static(map_, width=700, height=450)
