@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 
-# Initialize session state for data
+# Initialize session state for data and original snapshot
 if 'data' not in st.session_state:
     st.session_state['data'] = pd.DataFrame(columns=["Coordinates", "Traffic", "Passenger Frequency", "Landmark Proximity"])
+if 'original_data' not in st.session_state:
+    st.session_state['original_data'] = None
 
 # File upload for existing CSV
 st.header("Location Data Management")
@@ -12,6 +14,7 @@ uploaded_file = st.file_uploader("Upload CSV File (Coordinates, Traffic, Passeng
 # Load the data if a file is uploaded
 if uploaded_file:
     st.session_state['data'] = pd.read_csv(uploaded_file)
+    st.session_state['original_data'] = st.session_state['data'].copy()  # Keep a copy of the original data
     st.success("CSV file loaded successfully!")
 
 # Display the current dataset
@@ -65,7 +68,31 @@ if st.button("Update/Add Entry"):
     else:
         st.error("Please enter valid coordinates.")
 
+# Check for changes
+def has_changes():
+    if st.session_state['original_data'] is None:
+        return True  # No original data means everything is a change
+    return not st.session_state['data'].equals(st.session_state['original_data'])
+
 # Export updated data
-if not st.session_state['data'].empty and st.button("Export to CSV"):
-    st.session_state['data'].to_csv("updated_coordinates_data.csv", index=False)
-    st.success("Data exported as updated_coordinates_data.csv")
+if not st.session_state['data'].empty:
+    st.subheader("Export Data")
+    if st.button("Export to CSV"):
+        if has_changes():
+            st.session_state['original_data'] = st.session_state['data'].copy()  # Update original snapshot
+            st.session_state['data'].to_csv("updated_coordinates_data.csv", index=False)
+            st.success("Data exported as updated_coordinates_data.csv")
+        else:
+            st.error("No changes detected. Please make changes before exporting.")
+
+    # Provide a download button for the updated data
+    if has_changes():
+        csv_data = st.session_state['data'].to_csv(index=False)
+        st.download_button(
+            label="Download Updated CSV",
+            data=csv_data,
+            file_name="updated_coordinates_data.csv",
+            mime="text/csv",
+        )
+    else:
+        st.error("No changes detected. Please make changes before downloading.")
