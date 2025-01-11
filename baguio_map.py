@@ -115,19 +115,14 @@ st.sidebar.header("Route File Options")
 file_options = ['Optimized_LatriComplete', 'Optimized_TrancoComplete', 'Unoptimized_LatriComplete', 'Unoptimized_TrancoComplete']
 selected_file = st.sidebar.selectbox('Select a Route File', [None] + file_options)
 
-uploaded_file = st.sidebar.file_uploader("Or Upload a CSV File", type=['csv'])
-
 # Initialize the DQN model
 with st.spinner("Loading the prediction model..."):
     model = load_dqn_model()
 
 # Display map
-if selected_file or uploaded_file:
+if selected_file:
     try:
-        if uploaded_file:
-            data = load_data(uploaded_file)
-        else:
-            data = load_data(selected_file)
+        data = load_data(selected_file)
 
         st.subheader("Loaded Data Preview")
         st.dataframe(data.head(), use_container_width=True)
