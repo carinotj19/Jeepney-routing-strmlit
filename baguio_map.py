@@ -62,8 +62,7 @@ def create_map(data, model):
 
 # Function to create a map with dynamic line coloring
 def create_dynamic_map(data, model):
-    m = folium.Map(location=[16.4023, 120.596], zoom_start=13)  # Baguio city coordinates
-
+    m = folium.Map(location=[16.4023, 120.596], zoom_start=13)  # Baguio city coordinates 
     # Prepare predictions
     states = data[['Traffic', 'Passenger Frequency', 'Landmark Proximity']].values.astype(np.float32)
     scores = model.predict(states)
@@ -72,7 +71,8 @@ def create_dynamic_map(data, model):
     coordinates_with_scores = []
     for index, row in data.iterrows():
         score = scores[index][0]
-        color = 'green' if score > 0.8 else 'yellow' if score > 0.6 else 'orange' if score > 0.4 else 'red'
+        
+        color = 'green' if score > 0.9 else 'yellow' if score > 0.85 else 'orange' if score > 0.65 else 'red'
         coordinates_with_scores.append((row['Latitude'], row['Longitude'], color))
         folium.CircleMarker(
             location=[row['Latitude'], row['Longitude']],
@@ -105,6 +105,12 @@ def create_dynamic_map(data, model):
 
     return m
 
+def calculate_suitability(data, model):
+    states = data[['Traffic', 'Passenger Frequency', 'Landmark Proximity']].values.astype(np.float32)
+    scores = model.predict(states)
+    data['Suitability Score'] = scores.flatten()  # Add the scores as a new column
+    return data
+
 # Streamlit app layout
 st.set_page_config(page_title="Thesis System Map", layout="wide")
 st.title('🚏 Thesis System Map')
@@ -112,7 +118,7 @@ st.markdown("Visualize and analyze route data with suitability predictions. Sele
 
 # Sidebar for file selection
 st.sidebar.header("Route File Options")
-file_options = ['Optimized_LatriComplete', 'Optimized_TrancoComplete', 'Unoptimized_LatriComplete', 'Unoptimized_TrancoComplete']
+file_options = ['Optimized_LatriComplete.csv', 'Optimized_TrancoComplete.csv', 'Unoptimized_LatriComplete.csv', 'Unoptimized_TrancoComplete.csv']
 selected_file = st.sidebar.selectbox('Select a Route File', [None] + file_options)
 
 # Initialize the DQN model
@@ -123,9 +129,9 @@ with st.spinner("Loading the prediction model..."):
 if selected_file:
     try:
         data = load_data(selected_file)
-
+        data = calculate_suitability(data, model)
         st.subheader("Loaded Data Preview")
-        st.dataframe(data.head(), use_container_width=True)
+        st.dataframe(data[['Coordinates', 'Traffic', 'Passenger Frequency', 'Landmark Proximity', 'Suitability Score']], use_container_width=True)
 
         map_ = create_dynamic_map(data, model)
         st.subheader("Generated Map with Dynamic Lines")
@@ -140,8 +146,8 @@ else:
 # Updated Legend in Sidebar
 st.sidebar.markdown("### Marker Legend")
 st.sidebar.markdown("""
-- 🟢 **Ideal Loading/Unloading Spot (Score > 0.8)**
-- 🟡 **Moderate Potential Spot (Score > 0.6)**
-- 🟠 **Low Potential Spot (Score > 0.4)**
-- 🔴 **Not Suitable (Score ≤ 0.4)**
+- 🟢 **Ideal Loading/Unloading Spot**
+- 🟡 **Moderate Potential Spot**
+- 🟠 **Low Potential Spot**
+- 🔴 **Not Suitable**
 """)
