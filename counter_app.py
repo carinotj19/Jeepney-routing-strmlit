@@ -6,9 +6,7 @@ from streamlit_folium import folium_static
 
 # Initialize session state for data and original snapshot
 if 'data' not in st.session_state:
-    st.session_state['data'] = pd.DataFrame(columns=["Coordinates", "Traffic", "Passenger Frequency", "Landmark Proximity"])
-if 'original_data' not in st.session_state:
-    st.session_state['original_data'] = None
+    st.session_state['data'] = None
 if 'selected_row' not in st.session_state:
     st.session_state['selected_row'] = None
 
@@ -18,19 +16,19 @@ uploaded_file = st.file_uploader("Upload CSV File (Coordinates, Traffic, Passeng
 
 # Ensure the uploaded file is processed and updates session state immediately
 if uploaded_file is not None:
-    if 'uploaded_file_content' not in st.session_state or st.session_state['uploaded_file_content'] != uploaded_file:
-        st.session_state['data'] = pd.read_csv(uploaded_file)  # Load CSV file
-        st.session_state['original_data'] = st.session_state['data'].copy()  # Keep a snapshot
-        st.session_state['uploaded_file_content'] = uploaded_file  # Store the file to detect changes
-        st.success("CSV file loaded successfully!")
+    if 'uploaded_file_name' not in st.session_state or st.session_state['uploaded_file_name'] != uploaded_file.name:
+        try:
+            st.session_state['data'] = pd.read_csv(uploaded_file)  # Load CSV into session state
+            st.session_state['uploaded_file_name'] = uploaded_file.name  # Store the file name to avoid reprocessing
+            st.success("CSV file loaded successfully!")
+        except Exception as e:
+            st.error(f"Error processing file: {e}")
 else:
-    # Clear data if no file is uploaded
-    if 'uploaded_file_content' in st.session_state:
-        del st.session_state['uploaded_file_content']  # Remove the stored file reference
-        st.session_state['data'] = pd.DataFrame(columns=["Coordinates", "Traffic", "Passenger Frequency", "Landmark Proximity"])  # Reset to empty
+    st.session_state['data'] = None
+    st.session_state['uploaded_file_name'] = None
     st.warning("No file uploaded. Please upload a file to view data.")
 
-if not st.session_state['data'].empty:
+if st.session_state['data'] is not None and not st.session_state['data'].empty:
     # Display the current dataset with AgGrid
     st.subheader("Current Data")
     gb = GridOptionsBuilder.from_dataframe(st.session_state['data'])
@@ -50,8 +48,6 @@ if not st.session_state['data'].empty:
 
     if isinstance(selected, pd.DataFrame) and not selected.empty:
         st.session_state['selected_row'] = selected.iloc[0].to_dict()
-        # Set query params to scroll to the update section
-        st.session_state['scroll_to_form'] = True
     else:
         st.session_state['selected_row'] = None  # Reset if no row is selected
 
@@ -129,7 +125,7 @@ if st.session_state['selected_row']:
             st.error("Please enter valid coordinates.")
 
 # Export updated data
-if not st.session_state['data'].empty:
+if st.session_state['data'] is not None and not st.session_state['data'].empty:
     st.subheader("Export Data")
     if st.button("Export to CSV"):
         st.session_state['data'].to_csv("updated_coordinates_data.csv", index=False)
