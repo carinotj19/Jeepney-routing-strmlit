@@ -151,3 +151,4 @@ st.sidebar.markdown("""
 - 🟠 **Low Potential Spot**
 - 🔴 **Not Suitable**
 """)
+st.sidebar.link_button("Counter Application", "https://counter-app-jeepney.streamlit.app/?fbclid=IwZXh0bgNhZW0CMTEAAR0FJ-n121qqRPrsa3PCJ5350iQJHpVXWnaCbbwpdU8QtIrE6rWvEK_CQgc_aem_h8UQkcY9lmpasZs_FNh0gA")
