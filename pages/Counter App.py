@@ -12,7 +12,6 @@ if 'selected_row' not in st.session_state:
 
 # File upload for existing CSV
 st.header("Location Data Management")
-st.sidebar.link_button("Thesis System Map", "https://jeepney-routing-strmlit.streamlit.app/?fbclid=IwY2xjawIRNkZleHRuA2FlbQIxMQABHboDvMHusZdk2aX-YbJULluBwnEKYJY7aAhmisHDN-HL9XKlYJKfqu3ogw_aem_cL0skWZ7SPI2Dmb4ol8kwA")
 uploaded_file = st.file_uploader("Upload CSV File (Coordinates, Traffic, Passenger Frequency, Landmark Proximity)", type=['csv'])
 
 # Ensure the uploaded file is processed and updates session state immediately
