@@ -1,101 +1,57 @@
-Industry-Style System Documentation
-1. Overview
+# Jeepney Routing Streamlit App
 
-    **Project Name:**  
-    REFINING JEEPNEY LOADING AND UNLOADING ZONES IN BAGUIO CITY AND LA TRINIDAD:
-    A REINFORCEMENT LEARNING APPROACH FOR ALLEVIATING TRAFFIC CONGESTION
+A Streamlit application to visualize and plan jeepney routes in the Philippines.  
 
-    **Purpose & Goals:**  
-    - Provide designated loading and unloading zones for jeepneys without impeding traffic flow.
-    - Use a reinforcement learning approach to calculate a suitability score based on traffic, passenger frequency, and landmark proximity.
-    - Enable users to manage data (CSV format) and visualize ideal routes on a map.
+## 🚀 Features
+- Interactive map to plot and explore jeepney routes.  
+- Search routes by origin, destination, or route number.  
+- Export planned routes as images or shareable links.  
 
-    **Applications:**  
-    - **Counter Application:**  
-      - Allows users to edit, add, alter, and delete rows in a CSV dataset.
-      - Exports the edited data as CSV files.
-      - Currently supports CSV input and output only.
-    - **Jeepney Routing Application:**  
-      - Processes the CSV data provided from the counter app.
-      - Calculates a custom suitability score for each coordinate using three parameters:
-        - Traffic
-        - Passenger frequency
-        - Landmark proximity
-      - Displays a map (using Folium) showing road segments classified from “ideal” to “not suitable”.
-    
-2. System Architecture & Integration
+## 🛠️ Installation
 
-    **Overall Architecture:**  
-    - The two applications are built using Streamlit but function independently.
-    - The counter app generates and modifies CSV files that the routing application reads.
+1. Clone the repo:  
+   ```bash
+   git clone https://github.com/carinotj19/Jeepney-routing-strmlit.git
+   cd Jeepney-routing-strmlit
+   ```
+2. **(Optional) Create and activate a virtual environment:**
 
-    **Technology Stack:**
-    - **Programming Language:** Python
-    - **Framework:** Streamlit
-    - **Libraries & Dependencies:** streamlit, pandas, numpy, folium, streamlit-folium, tensorflow
-    
-3. Installation & Setup
+   - **macOS/Linux:**
+     ```bash
+     python3 -m venv .venv
+     source .venv/bin/activate
+     ```
 
-    **Prerequisites:**  
-    - Python (version 3.8 or higher recommended)
-    - Pip for installing dependencies
+   - **Windows (Command Prompt):**
+     ```cmd
+     python -m venv .venv
+     .venv\Scripts\activate.bat
+     ```
 
-    **Installation Steps:**  
-    1. Clone the repository:
-       ```bash
-       git clone <repository_url>
-       cd <repository_folder>
-       ```
-    2. Set up a virtual environment:
-       ```bash
-       python -m venv venv
-       source venv/bin/activate  # On Windows: venv\Scripts\activate
-       ```
-    3. Install dependencies:
-       ```bash
-       pip install -r requirements.txt
-       ```
-    
-4. Usage Guide
+   - **Windows (PowerShell):**
+     ```powershell
+     python -m venv .venv
+     .venv\Scripts\Activate.ps1
+     ```
 
-    **Counter Application:**  
-    - Launch with:
-      ```bash
-      streamlit run counter_app.py
-      ```
-    - Upload/edit/export CSV data.
+   This step helps isolate project dependencies from your global Python environment.
 
-    **Jeepney Routing Application:**  
-    - Launch with:
-      ```bash
-      streamlit run jeepney_routing_app.py
-      ```
-    - Load CSV, compute suitability scores, and display results on an interactive map.
-    
-5. Troubleshooting & FAQ
+3. **Install the required packages:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-    **Common Issues:**  
-    - CSV file format errors: Ensure correct headers and data format.
-    - Application launch failures: Verify dependencies are installed and virtual environment is activated.
-    - Map display issues: Check Folium and streamlit-folium installations.
-    
-6. Change Log & Version History
+## 📈 Usage
 
-    **Version 1.0 (YYYY-MM-DD):**  
-    - Initial release of both applications.
-    - Basic CSV management and suitability scoring implemented.
-    
-7. Appendices
+To run the application:
 
-    **Sample CSV Format:**
-    ```csv
-    latitude,longitude,traffic,passenger_frequency,landmark_proximity
-    16.4023,120.5960,High,Medium,Close
-    16.4030,120.5970,Medium,High,Far
-    ```
+```bash
+streamlit run app.py
+```
+This command starts a local Streamlit server and opens the app in your default web browser. If it doesn't open automatically, navigate to `http://localhost:8501` in your browser.
 
-    **External Resources:**  
-    - [Streamlit Documentation](https://docs.streamlit.io/)
-    - [Folium Documentation](https://python-visualization.github.io/folium/)
-    - [TensorFlow Documentation](https://www.tensorflow.org/)
-    
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+   
